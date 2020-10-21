@@ -65,3 +65,8 @@ Tasklist
 ------------------
 - [] Process Errors from your Database Table "errors" at a later time and execute failed Request: for instance when the website was down or you got an Exception during parsing for specific requests and want to crawl them again
 - [] Automatic Part calculation and saving in DB??? 
+
+Build Realease
+------------------
+python setup.py sdist
+twine upload dist/*

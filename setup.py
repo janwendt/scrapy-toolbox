@@ -5,17 +5,18 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="scrapy-toolbox",
-    version="0.0.2",
+    version="0.0.3",
     author="Jan Wendt",
     description="Saves Scrapy exceptions in your Database",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/janwendt/scrapy-toolbox",
-    download_url="https://github.com/janwendt/scrapy-toolbox/archive/0.0.2.tar.gz",
+    download_url="https://github.com/janwendt/scrapy-toolbox/archive/0.0.3.tar.gz",
     packages=setuptools.find_packages(),
     install_requires=[
-          'sqlalchemy',
-          'scrapy',
+          "sqlalchemy",
+          "scrapy",
+          "numpy"
     ],
     classifiers=[
         "Programming Language :: Python :: 3",
