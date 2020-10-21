@@ -7,16 +7,8 @@ import json
 from datetime import datetime
 import os
 from scrapy import signals
-import logging
-from datetime import datetime
-import math
 
 DeclarativeBase = declarative_base()
-
-class ErrorCallback():
-    # error callback for failed scrapy Requests
-    def errback(failure, spider):
-        ErrorSaving.store_error_in_database(failure, spider, failure.request)
 
 class ErrorSaving():
     #  save all failures to database
@@ -30,7 +22,7 @@ class ErrorSaving():
 
         session = sessionmaker(bind=engine)()
         DeclarativeBase.metadata.create_all(engine, checkfirst=True)
-        e = Error(**{
+        e = __Error(**{
             "failed_at": datetime.now(),
             "spider": repr(spider),
             "traceback": failure.getTraceback(),
@@ -57,8 +49,8 @@ class ErrorSaving():
             session.close()
 
 
-class Error(DeclarativeBase):
-    __tablename__ = "errors"
+class __Error(DeclarativeBase):
+    __tablename__ = "__errors"
 
     id = Column(Integer, primary_key=True)
     failed_at = Column(DateTime)
@@ -82,19 +74,12 @@ class ErrorSavingMiddleware:
     def from_crawler(cls, crawler):
         s = cls()
         crawler.signals.connect(s.spider_error, signal=signals.spider_error)
-        crawler.signals.connect(s.spider_opened, signal=signals.spider_opened)
-        crawler.signals.connect(s.spider_closed, signal=signals.spider_closed)
+        crawler.signals.connect(s.request_scheduled, signal=signals.request_scheduled)
         return s
 
     def spider_error(self, failure, response, spider, signal=None, sender=None, *args, **kwargs):
         ErrorSaving.store_error_in_database(failure, spider, response.request, response)
 
-    def spider_opened(self, spider):
-        self.start = datetime.now()
-
-    def spider_closed(self, spider, reason):
-        elapsed = datetime.now() - self.start
-        logging.info("########################################")
-        logging.info(f"########## TOTAL RUNTIME: {str(elapsed)}")
-        logging.info(f"########## PERFECT GAE SPLITS: {math.ceil(elapsed.total_seconds() / 3600 / 24)}")
-        logging.info("########################################")
+    def request_scheduled(self, request, spider):
+        if not request.errback:
+            request.errback = lambda failure: ErrorSaving.store_error_in_database(failure, spider, failure.request)
