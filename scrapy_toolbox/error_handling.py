@@ -22,7 +22,7 @@ class ErrorSaving():
 
         session = sessionmaker(bind=engine)()
         DeclarativeBase.metadata.create_all(engine, checkfirst=True)
-        e = __Error(**{
+        e = Error(**{
             "failed_at": datetime.now(),
             "spider": repr(spider),
             "traceback": failure.getTraceback(),
@@ -49,7 +49,7 @@ class ErrorSaving():
             session.close()
 
 
-class __Error(DeclarativeBase):
+class Error(DeclarativeBase):
     __tablename__ = "__errors"
 
     id = Column(Integer, primary_key=True)
