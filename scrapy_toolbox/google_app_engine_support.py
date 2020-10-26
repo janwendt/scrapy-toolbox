@@ -26,7 +26,7 @@ class GaePartCalcMiddleware:
     def from_crawler(cls, crawler):
         s = cls()
         crawler.signals.connect(s.spider_opened, signal=signals.spider_opened)
-        #crawler.signals.connect(s.spider_closed, signal=signals.spider_closed)
+        crawler.signals.connect(s.spider_closed, signal=signals.spider_closed)
         return s
 
     def spider_opened(self, spider):
