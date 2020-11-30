@@ -2,8 +2,7 @@ scrapy-toolbox
 =============
 
 A Python library that extends Scrapy with the following features:
-- Support for Google App Engine (GAE): Bypass Google App Engines 24 hour execution time limit (https://cloud.google.com/appengine/docs/standard/go/how-instances-are-managed#scaling_types) by dividing the start_urls into x parts
-- Error Saving to the Database Table "errors" for manual error analysis (incl. traceback and response) and automated request reconstruction containing the following columns:
+- Error Saving to the Database Table "__errors" for manual error analysis (incl. traceback and response) and automated request reconstruction containing the following columns:
   - failed_at
   - spider
   - traceback
@@ -17,11 +16,13 @@ A Python library that extends Scrapy with the following features:
   - response_url
   - response_headers (json dump that can be loaded with json.loads())
   - response_body
+- DatabasePipeline for SQLAlchemy
 
 Requisites: 
 -----------
 
-* settings.py with a dict for DATABASE_DEV and DATABASE
+* Environment variable "PRODUCTION" for Produciton Mode for instance in your Dockerfile
+* The ErrorSavingMiddleware defines a errback Callback for your Requests. So if you want to make use of this Feature do not define any errback.
 
 Installation
 ------------
@@ -33,29 +34,55 @@ Installation
 Setup
 -----
 
-Add `scrapy_toolbox.error_handling.ErrorSavingMiddleware` and `scrapy_toolbox.google_app_engine_support.GaePartCalcMiddleware` extensions to your Scrapy Project `settings.py`.
+Add `scrapy_toolbox.error_handling.ErrorSavingMiddleware` extensions to your Scrapy Project `settings.py` and set your DATABASE_DEV and DATABASE.
 
-Example:
+Example when using a MySQL Database:
 
   ```
   # settings.py
   SPIDER_MIDDLEWARES = {
       'scrapy_toolbox.error_handling.ErrorSavingMiddleware': 1000,
-      'scrapy_toolbox.google_app_engine_support.GaePartCalcMiddleware': 1000,
+  }
+
+  DATABASE = {
+    'drivername': 'mysql+pymysql',
+    'username': '...',
+    'password': '...',
+    'database': '...',
+    'host': '...',
+    'port': '3306'
+  }
+
+  DATABASE_DEV = {
+      'drivername': 'mysql+pymysql',
+      'username': '...',
+      'password': '...',
+      'database': '...',
+      'host': '127.0.0.1',
+      'port': '3306'
   }
 
   ```
 
 Usage
 -----
+  ```
+  # pipelines.py
+  from scrapy_toolbox.database import DatabasePipeline
 
-  - The ErrorSavingMiddleware defines a errback Callback for your Requests. So if you want to make use of this Feature do not define any errback.
-  - To split the start_urls into x parts just start your spider by adding the two arguments `part` and `number_of_parts` where part is the part which should be executed during this run and number_of_parts defines the number of parts that exist in total. So if you want to split your start_urls into 3 Parts:
-```
-  scrapy crawl test -a part=1 -a number_of_parts=3
-  scrapy crawl test -a part=2 -a number_of_parts=3
-  scrapy crawl test -a part=3 -a number_of_parts=3
-```
+  class ScraperXYZPipeline(DatabasePipeline):
+    def process_item(self, item, spider):
+        ...
+  ```
+
+  ```
+  # models.py
+  import scrapy_toolbox.database as db
+
+  # then use db.DeclarativeBase as your declarative base
+  class Car(db.DeclarativeBase):
+    ...
+  ```
 
 Supported versions
 ------------------
@@ -64,9 +91,10 @@ This package works with Python 3. It has been tested with Scrapy up to version 1
 Tasklist
 ------------------
 - [] Process Errors from your Database Table "errors" at a later time and execute failed Request: for instance when the website was down or you got an Exception during parsing for specific requests and want to crawl them again
-- [] Automatic Part calculation and saving in DB??? 
 
 Build Realease
 ------------------
-python setup.py sdist
+```
+python setup.py sdist bdist_wheel
 twine upload dist/*
+```

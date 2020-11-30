@@ -13,7 +13,7 @@ DeclarativeBase = declarative_base()
 class ErrorSaving():
     #  save all failures to database
     def store_error_in_database(failure, spider, request, response={}):
-        if "IS_APP_ENGINE" in os.environ:
+        if "PRODUCTION" in os.environ:
             # GAE + Cloud SQL
             engine = create_engine(URL(**spider.settings.get("DATABASE")), pool_pre_ping=True)
         else:
