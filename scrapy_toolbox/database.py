@@ -42,6 +42,7 @@ class DatabasePipeline(object):
         self.create_tables(engine)
         session = self.create_session(engine)
         self.sessions[spider] = session
+        spider.dbPipeline = self
 
     def spider_closed(self, spider):
         session = self.sessions.pop(spider)
