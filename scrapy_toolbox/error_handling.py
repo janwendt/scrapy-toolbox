@@ -11,17 +11,7 @@ from scrapy import signals
 DeclarativeBase = declarative_base()
 
 class ErrorSaving():
-    #  save all failures to database
     def store_error_in_database(failure, spider, request, response={}):
-        if "PRODUCTION" in os.environ:
-            # GAE + Cloud SQL
-            engine = create_engine(URL(**spider.settings.get("DATABASE")), pool_pre_ping=True)
-        else:
-            # LOKAL
-            engine = create_engine(URL(**spider.settings.get("DATABASE_DEV")), pool_pre_ping=True)
-
-        session = sessionmaker(bind=engine)()
-        DeclarativeBase.metadata.create_all(engine, checkfirst=True)
         e = Error(**{
             "failed_at": datetime.now(),
             "spider": spider.name,
@@ -37,6 +27,8 @@ class ErrorSaving():
             "response_headers": json.dumps(dict(response.headers.to_unicode_dict())) if response else "",
             "response_body": response.body if response else ""
         })
+
+        session = spider.crawler.database_session
 
         try:
             session.add(e)
@@ -69,7 +61,6 @@ class Error(DeclarativeBase):
 
 
 class ErrorSavingMiddleware:
-    
     @classmethod
     def from_crawler(cls, crawler):
         s = cls()

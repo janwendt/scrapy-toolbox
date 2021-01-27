@@ -35,13 +35,14 @@ Installation
 Setup
 -----
 
-Add `scrapy_toolbox.error_handling.ErrorSavingMiddleware` extensions to your Scrapy Project `settings.py` and set your DATABASE_DEV and DATABASE.
+Add `scrapy_toolbox.database.DatabasePipeline` and `scrapy_toolbox.error_handling.ErrorSavingMiddleware` extensions to your Scrapy Project `settings.py` and set your DATABASE_DEV and DATABASE.
 
 Example when using a MySQL Database:
 
   ```
   # settings.py
   SPIDER_MIDDLEWARES = {
+      'scrapy_toolbox.database.DatabasePipeline': 999,
       'scrapy_toolbox.error_handling.ErrorSavingMiddleware': 1000,
   }
 
@@ -84,6 +85,12 @@ Usage
   class Car(db.DeclarativeBase):
     ...
   ```
+
+  If you want to access the Database Session in your Spider to execute a Query you can get it by:
+  ```
+  # spiderXYZ.py
+  session = self.crawler.database_session
+  session.query(models.Market.id, models.Market.zip_code).all()
 
 Supported versions
 ------------------
