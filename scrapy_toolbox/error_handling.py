@@ -24,7 +24,7 @@ class ErrorSaving():
         DeclarativeBase.metadata.create_all(engine, checkfirst=True)
         e = Error(**{
             "failed_at": datetime.now(),
-            "spider": repr(spider),
+            "spider": spider.name,
             "traceback": failure.getTraceback(),
             "request_method": request.method,
             "request_url": request.url,

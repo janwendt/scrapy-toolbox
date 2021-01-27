@@ -16,19 +16,20 @@ A Python library that extends Scrapy with the following features:
   - response_url
   - response_headers (json dump that can be loaded with json.loads())
   - response_body
+- Error Processing with request reconstruction
 - DatabasePipeline for SQLAlchemy
 
 Requisites: 
 -----------
 
 * Environment variable "PRODUCTION" for Produciton Mode for instance in your Dockerfile
-* The ErrorSavingMiddleware defines a errback Callback for your Requests. So if you want to make use of this Feature do not define any errback.
+* The ErrorSavingMiddleware defines a errback Callback for your Requests. If you want to make use of this Feature do not define any errback.
 
 Installation
 ------------
 
   ```
-  pip install scrapy-toolbox
+  pip install --upgrade scrapy-toolbox
   ```
 
 Setup

@@ -2,9 +2,12 @@ from scrapy import signals
 from sqlalchemy import create_engine
 from sqlalchemy.engine.url import URL
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy_utils import database_exists, create_database
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy_utils import database_exists, create_database
 import os
+
+# import logging
+# logger = logging.getLogger(__name__)
 
 DeclarativeBase = declarative_base()
 
@@ -12,14 +15,19 @@ class DatabasePipeline(object):
     def __init__(self, settings):
         self.database = settings.get("DATABASE")
         self.database_dev = settings.get("DATABASE_DEV")
-        self.sessions = {}
+        self.session = self.get_session()
 
     @classmethod
     def from_crawler(cls, crawler):
         pipeline = cls(crawler.settings)
-        crawler.signals.connect(pipeline.spider_opened, signals.spider_opened)
         crawler.signals.connect(pipeline.spider_closed, signals.spider_closed)
+        crawler.database_session = pipeline.session
         return pipeline
+
+    def get_session(self):
+        engine = self.create_engine()
+        self.create_tables(engine)
+        return self.create_session(engine)
 
     def create_engine(self):
         if "PRODUCTION" in os.environ:
@@ -37,13 +45,5 @@ class DatabasePipeline(object):
         session = sessionmaker(bind=engine, autoflush=False)() # autoflush=False: "This is useful when initializing a series of objects which involve existing database queries, where the uncompleted object should not yet be flushed." for instance when using the Association Object Pattern
         return session
 
-    def spider_opened(self, spider):
-        engine = self.create_engine()
-        self.create_tables(engine)
-        session = self.create_session(engine)
-        self.sessions[spider] = session
-        spider.dbPipeline = self
-
     def spider_closed(self, spider):
-        session = self.sessions.pop(spider)
-        session.close()
+        self.session.close()
