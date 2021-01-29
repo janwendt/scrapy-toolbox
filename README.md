@@ -35,19 +35,19 @@ Installation
 Setup
 -----
 
-Add `scrapy_toolbox.database.DatabasePipeline` and `scrapy_toolbox.error_handling.ErrorSavingMiddleware` extensions to your Scrapy Project `settings.py` and set your DATABASE_DEV and DATABASE.
-
-Example when using a MySQL Database:
+Add the scrapy_toolbox Middlewares to your Scrapy Project `settings.py` and set your DATABASE_DEV and DATABASE.
 
   ```
   # settings.py
   SPIDER_MIDDLEWARES = {
       'scrapy_toolbox.database.DatabasePipeline': 999,
       'scrapy_toolbox.error_handling.ErrorSavingMiddleware': 1000,
+      'scrapy_toolbox.error_processing.ErrorProcessingMiddleware': 1000,
   }
 
+  # Example when using a MySQL
   DATABASE = {
-    'drivername': 'mysql+pymysql',
+    'drivername': 'mysql+pymysql', 
     'username': '...',
     'password': '...',
     'database': '...',
@@ -68,6 +68,7 @@ Example when using a MySQL Database:
 
 Usage
 -----
+Database Pipeline:
   ```
   # pipelines.py
   from scrapy_toolbox.database import DatabasePipeline
@@ -86,11 +87,17 @@ Usage
     ...
   ```
 
-  If you want to access the Database Session in your Spider to execute a Query you can get it by:
+Query Data:
   ```
   # spiderXYZ.py
   session = self.crawler.database_session
   session.query(models.Market.id, models.Market.zip_code).all()
+  ```
+
+Process Errors:
+  ```
+  scrapy crawl spider_xyz -a process_errors=True
+  ```
 
 Supported versions
 ------------------
