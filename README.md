@@ -97,6 +97,7 @@ Query Data:
 Process Errors:
   ```
   scrapy crawl spider_xyz -a process_errors=True
+  #scrapy-toolbox spider_xyz
   ```
 
 Supported versions
