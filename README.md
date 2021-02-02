@@ -75,6 +75,7 @@ Database Pipeline:
 
   class ScraperXYZPipeline(DatabasePipeline):
     def process_item(self, item, spider):
+        session = self.session
         ...
   ```
 
