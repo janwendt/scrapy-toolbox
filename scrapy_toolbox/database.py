@@ -6,22 +6,21 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy_utils import database_exists, create_database
 import os
 
-# import logging
-# logger = logging.getLogger(__name__)
-
 DeclarativeBase = declarative_base()
 
-class Singleton(type):
-    _instances = {}
+# https://www.python.org/download/releases/2.2/descrintro/#__new__
+class Singleton(object):
+    def __new__(cls, *args, **kwds):
+        it = cls.__dict__.get("__it__")
+        if it is not None:
+            return it
+        cls.__it__ = it = object.__new__(cls)
+        it.init(*args, **kwds)
+        return it
+    def init(self, *args, **kwds):
+        pass
 
-    def __call__(cls, *args, **kwargs):
-        if cls not in cls._instances:
-            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
-        return cls._instances[cls]
-
-class DatabasePipeline(object):
-    __metaclass__ = Singleton
-
+class DatabasePipeline(Singleton):
     def __init__(self, settings):
         self.database = settings.get("DATABASE")
         self.database_dev = settings.get("DATABASE_DEV")

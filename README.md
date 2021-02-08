@@ -6,6 +6,7 @@ A Python library that extends Scrapy with the following features:
   - failed_at
   - spider
   - traceback
+  - url (original url)
   - request_method
   - request_url
   - request_meta (json dump that can be loaded with json.loads())
@@ -18,12 +19,14 @@ A Python library that extends Scrapy with the following features:
   - response_body
 - Error Processing with request reconstruction
 - DatabasePipeline for SQLAlchemy
+- Mail Notification when an Exception occurs (HTTP Errors (404, 502, ...) are excluded and only stored in the Database)
+- Automatic GitHub Issue creation when an Exception occurs (HTTP Errors (404, 502, ...) are excluded and only stored in the Database)
 
 Requisites: 
 -----------
 
 * Environment variable "PRODUCTION" for Produciton Mode for instance in your Dockerfile
-* The ErrorSavingMiddleware defines a errback Callback for your Requests. If you want to make use of this Feature do not define any errback.
+* The ErrorSavingMiddleware defines an errback Callback for your Requests. If you want to make use of this Feature do not define any errback.
 
 Installation
 ------------
@@ -64,10 +67,28 @@ Add the scrapy_toolbox Middlewares to your Scrapy Project `settings.py` and set 
       'port': '3306'
   }
 
+  CREATE_GITHUB_ISSUE = True # Toggle GitHub Issue creation
+  GITHUB_TOKEN = "..."
+  GITHUB_REPO = "janwendt/scrapy-toolbox" # for instance
+
+  SEND_MAILS = True # Toggle Mail Notification
+  MAIL_HOST = "..."
+  MAIL_FROM = "..."
+  MAIL_TO = "..."
   ```
 
 Usage
 -----
+Spider (Import ErrorCatcher first!!!):
+  ```
+  from scrapy_toolbox.error_handling import ErrorCatcher
+  import scrapy
+  ...
+
+  class XyzSpider(scrapy.Spider, metaclass=ErrorCatcher):
+  ...
+  ```
+
 Database Pipeline:
   ```
   # pipelines.py
@@ -97,8 +118,11 @@ Query Data:
 Process Errors:
   ```
   scrapy crawl spider_xyz -a process_errors=True
-  #scrapy-toolbox spider_xyz
   ```
+
+Limitations
+------------------
+Syntax Errors in your settings.py are not handled.
 
 Supported versions
 ------------------
@@ -106,7 +130,7 @@ This package works with Python 3. It has been tested with Scrapy up to version 1
 
 Tasklist
 ------------------
-- [] Process Errors from your Database Table "errors" at a later time and execute failed Request: for instance when the website was down or you got an Exception during parsing for specific requests and want to crawl them again
+- [] Catalog Exceptions so that an exception only creates one new Github Issue
 
 Build Realease
 ------------------
