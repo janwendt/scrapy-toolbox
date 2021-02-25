@@ -15,13 +15,13 @@ from github import Github
 from pathlib import Path
 from itertools import chain
 import sys
+import re
 
 settings = get_project_settings()
 
 def except_hook(exctype, value, tb):
-    trace = "".join(traceback.format_exception(exctype, value, tb))
-    issue = create_github_issue(value, trace)
-    send_mail(value, trace, issue)
+    issue = create_github_issue(exctype, value, tb)
+    send_mail(exctype, value, tb, issue)
     sys.__excepthook__(exctype, value, tb)
 sys.excepthook = except_hook
 
@@ -45,16 +45,13 @@ class ErrorSaving():
             "response_headers": json.dumps(dict(response.headers.to_unicode_dict())) if response else "",
             "response_body": response.body if response else ""
         })
-
         session = spider.crawler.database_session
-
         try:
             session.add(e)
             session.commit()
         except:
             session.rollback()
             raise
-
         finally:
             session.close()
 
@@ -88,14 +85,12 @@ class ErrorSavingMiddleware:
         crawler.signals.connect(s.item_error, signal=signals.item_error)
         crawler.signals.connect(s.item_dropped, signal=signals.item_dropped)
         return s
-    
+
     # Parse callback Exceptions
     def spider_error(self, failure, response, spider, signal=None, sender=None, *args, **kwargs): 
         print("#####################################################spider_error")
-        trace = failure.getTraceback()
-        e = failure.getErrorMessage()
-        issue = create_github_issue(e, trace)
-        send_mail(e, trace, issue)
+        issue = create_github_issue(failure.type, failure.value, failure.tb)
+        send_mail(failure.type, failure.value, failure.tb, issue)
         ErrorSaving.store_error_in_database(failure, spider, response.request, response)
 
     # Request Exceptions: 502 Bad Gateway, 500, 404
@@ -115,29 +110,42 @@ class ErrorSavingMiddleware:
     # Pipeline Exceptions
     def item_error(self, item, response, spider, failure):
         print("#####################################################item_error")
-        trace = failure.getTraceback()
-        e = failure.getErrorMessage()
-        issue = create_github_issue(e, trace)
-        send_mail(e, trace, issue)
+        issue = create_github_issue(failure.type, failure.value, failure.tb)
+        send_mail(failure.type, failure.value, failure.tb, issue)
         ErrorSaving.store_error_in_database(failure, spider, response.request, response, item_error=True)
 
     def item_dropped(self, item, response, exception, spider):
        print("#####################################################item_dropped")
 
-def create_github_issue(exception, trace):
+def create_github_issue(exctype, value, tb):
     if settings["CREATE_GITHUB_ISSUE"]:
+        create_new_issue = True
+        identifier = f'<!---\n{"".join(traceback.format_exception(exctype, value, tb, limit=-1))}\n-->'
         g = Github(settings["GITHUB_TOKEN"])
         repo = g.get_repo(settings["GITHUB_REPO"])
-        issue = repo.create_issue(
-            title=f"{settings.get('BOT_NAME')}:{sys.argv[1]} | {exception}",
-            body=f"Scraper: {settings.get('BOT_NAME')}\nSpider: {sys.argv[1]}\nPath: {ospath.join(ospath.join(ospath.realpath(sys.argv[1]), 'spiders'), f'{sys.argv[1]}.py')}\nTimestamp: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n{trace}",
-            labels=[repo.get_label("bug")])
-        return issue.number
+        issues = repo.get_issues(state='open')
+        for i in issues:
+            if identifier in i.body:
+                create_new_issue = False
+                match = re.search("Occurences: [0-9]+", i.body, flags=re.IGNORECASE)
+                occurences = int(match.group(0).split()[1]) + 1
+                i.edit(body = re.sub("Occurences: [0-9]+", f"Occurences: {occurences}", i.body, flags=re.IGNORECASE))
+                print("#######EDITED######")
+                return None
+        if create_new_issue:
+            title=f"{settings.get('BOT_NAME')}:{sys.argv[1]} | {value}"
+            trace = "".join(traceback.format_exception(exctype, value, tb))
+            issue = repo.create_issue(
+                title=title,
+                body=f"Scraper: {settings.get('BOT_NAME')}\nSpider: {sys.argv[1]}\nPath: {ospath.join(ospath.join(ospath.realpath(sys.argv[1]), 'spiders'), f'{sys.argv[1]}.py')}\nTimestamp: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\nOccurences: 1\n```{trace}```\n\n{identifier}",
+                labels=[repo.get_label("bug")])
+            return issue.number
     else:
         return None
 
-def send_mail(exception, trace, issue):
+def send_mail(exctype, value, tb, issue):
     if settings["SEND_MAILS"]:
+        trace = "".join(traceback.format_exception(exctype, value, tb))
         msg = EmailMessage()
         content = f"Project: {ospath.basename(Repo('.', search_parent_directories=True).working_tree_dir)}\nScraper: {settings.get('BOT_NAME')}\nSpider: {sys.argv[1]}\n"
         if issue:
@@ -164,9 +172,8 @@ def catch_exception(func):
         except StopIteration:
             return f
         except Exception as e:
-            trace = traceback.format_exc()
-            issue = create_github_issue(e, trace)
-            send_mail(e, trace, issue)
+            issue = create_github_issue(type(e), e, e.__traceback__)
+            send_mail(type(e), e, e.__traceback__, issue)
             raise
     return wrapper
 
