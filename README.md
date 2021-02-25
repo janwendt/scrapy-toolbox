@@ -131,7 +131,8 @@ This package works with Python 3. It has been tested with Scrapy up to version 1
 
 Tasklist
 ------------------
-- [] Catalog Exceptions so that an exception only creates one new Github Issue
+- [] add Database Error id to GitHub Issues
+- [] check again fairgarage
 
 Build Realease
 ------------------

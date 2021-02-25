@@ -130,7 +130,6 @@ def create_github_issue(exctype, value, tb):
                 match = re.search("Occurences: [0-9]+", i.body, flags=re.IGNORECASE)
                 occurences = int(match.group(0).split()[1]) + 1
                 i.edit(body = re.sub("Occurences: [0-9]+", f"Occurences: {occurences}", i.body, flags=re.IGNORECASE))
-                print("#######EDITED######")
                 return None
         if create_new_issue:
             title=f"{settings.get('BOT_NAME')}:{sys.argv[1]} | {value}"

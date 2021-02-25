@@ -5,13 +5,13 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="scrapy-toolbox",
-    version="0.2.2",
+    version="0.2.3",
     author="Jan Wendt",
     description="Error Handling and Processing for your Scrapy Exceptions",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/janwendt/scrapy-toolbox",
-    download_url="https://github.com/janwendt/scrapy-toolbox/archive/0.2.2.tar.gz",
+    download_url="https://github.com/janwendt/scrapy-toolbox/archive/0.2.3.tar.gz",
     packages=setuptools.find_packages(),
     entry_points = {
         "console_scripts": ["scrapy-toolbox=scrapy_toolbox.command_line:main"],
@@ -21,7 +21,8 @@ setuptools.setup(
         "sqlalchemy",
         "sqlalchemy_utils",
         "gitpython",
-        "pygithub"
+        "pygithub",
+        "pymysql"
     ],
     classifiers=[
         "Programming Language :: Python :: 3",
