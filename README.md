@@ -98,13 +98,8 @@ Database Pipeline:
   import xy.model as model
 
   class ScraperXYZPipeline(DatabasePipeline):
-  
-    self.set_mapper(items, model)
-    
-    def process_item(self, item, spider):
-        session = self.session
-        obj = self.mapper.map_to_model(item, session)
-        ...
+        def __init__(self, settings):
+        super().__init__(settings, items, model)
   ```
 
   ```

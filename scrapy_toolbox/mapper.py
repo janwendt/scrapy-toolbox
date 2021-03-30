@@ -1,4 +1,4 @@
-import inspect
+from inspect import getmembers, isclass
 # Get all classes from a *.py-script
 from sqlalchemy.inspection import inspect
 # Get PKs from model-class
@@ -13,7 +13,7 @@ class ItemsModelMapper:
         self.items = items
         self.model = model
         self.model_col = {cls_name + "Item" : cls_obj for cls_name, cls_obj in
-                          inspect.getmembers(self.model) if inspect.isclass(cls_obj)}  # "XYItem" : XY.__class_
+                          getmembers(self.model) if isclass(cls_obj)}  # "XYItem" : XY.__class_
 
 
     def map_to_model(self, item, sess):
