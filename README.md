@@ -19,6 +19,7 @@ A Python library that extends Scrapy with the following features:
   - response_body
 - Error Processing with request reconstruction
 - DatabasePipeline for SQLAlchemy
+- Mapper to automaticaly map scrapy.Item on a database-object  
 - Mail Notification when an Exception occurs (HTTP Errors (404, 502, ...) are excluded and only stored in the Database)
 - Automatic GitHub Issue creation when an Exception occurs (HTTP Errors (404, 502, ...) are excluded and only stored in the Database)
 
@@ -93,10 +94,16 @@ Database Pipeline:
   ```
   # pipelines.py
   from scrapy_toolbox.database import DatabasePipeline
+  import xy.items as items
+  import xy.model as model
 
   class ScraperXYZPipeline(DatabasePipeline):
+  
+    self.set_mapper(items, model)
+    
     def process_item(self, item, spider):
         session = self.session
+        obj = self.mapper.map_to_model(item, session)
         ...
   ```
 
