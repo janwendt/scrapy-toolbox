@@ -21,7 +21,7 @@ class ItemsModelMapper:
         item_fields = list(item.keys())
         model_class = self.model_col[item_class.__name__]
         ids = [key.name for key in inspect(model_class).primary_key]
-        if not self.check_ids(item_fields, ids):
+        if not set(ids).issubset(set(item_fields)):
             item = model_class(**{i:item[i] for i in item})
             return item
         filter_param = {item_id:item[item_id] for item_id in ids}
@@ -31,9 +31,3 @@ class ItemsModelMapper:
         else:
             item = item_by_id
         return item
-
-    def check_ids(self, item_fields, ids):
-        contains = True
-        for obj_id in ids:
-            contains = contains and (obj_id in item_fields)
-        return contains
