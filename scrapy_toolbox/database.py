@@ -4,6 +4,7 @@ from sqlalchemy.engine.url import URL
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy_utils import database_exists, create_database
+from .mapper import ItemsModelMapper
 import os
 
 DeclarativeBase = declarative_base()
@@ -25,6 +26,10 @@ class DatabasePipeline(Singleton):
         self.database = settings.get("DATABASE")
         self.database_dev = settings.get("DATABASE_DEV")
         self.session = self.get_session()
+        self.mapper = None
+
+    def set_mapper(self, items, model):
+        self.mapper = ItemsModelMapper(items=items, model=model)
 
     @classmethod
     def from_crawler(cls, crawler):
