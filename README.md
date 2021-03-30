@@ -99,7 +99,7 @@ Database Pipeline:
 
   class ScraperXYZPipeline(DatabasePipeline):
         def __init__(self, settings):
-        super().__init__(settings, items, model)
+          super().__init__(settings, items, model)
   ```
 
   ```
