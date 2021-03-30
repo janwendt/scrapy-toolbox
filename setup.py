@@ -4,7 +4,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="scrapy-toolbox",
+    name="toolbox",
     version="0.2.3",
     author="Jan Wendt",
     description="Error Handling and Processing for your Scrapy Exceptions",
@@ -14,7 +14,7 @@ setuptools.setup(
     download_url="https://github.com/janwendt/scrapy-toolbox/archive/0.2.3.tar.gz",
     packages=setuptools.find_packages(),
     entry_points = {
-        "console_scripts": ["scrapy-toolbox=scrapy_toolbox.command_line:main"],
+        "console_scripts": ["toolbox=scrapy_toolbox.command_line:main"],
     },
     install_requires=[
         "scrapy",
