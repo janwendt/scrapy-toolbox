@@ -90,6 +90,19 @@ Spider (Import ErrorCatcher first!!!):
   ...
   ```
 
+Items 
+  ```
+  import scrapy
+  ...
+
+  class XyzItem(scrapy.Item):
+    var1 = scrapy.Field()
+    ...
+    varn = scrapy.Field()
+    ids = ["id1", ..., "idn"]
+  ...
+  ```
+
 Database Pipeline:
   ```
   # pipelines.py
