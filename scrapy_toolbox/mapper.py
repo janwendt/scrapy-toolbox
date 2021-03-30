@@ -12,11 +12,6 @@ class ItemsModelMapper:
     def __init__(self, items, model):
         self.items = items
         self.model = model
-
-
-        self.items_col = {cls_name:cls_obj for cls_name, cls_obj in                    # "XY" : XY.__class__
-                          inspect.getmembers(self.items) if inspect.isclass(cls_obj)}
-
         self.model_col = {cls_name + "Item" : cls_obj for cls_name, cls_obj in
                           inspect.getmembers(self.model) if inspect.isclass(cls_obj)}  # "XYItem" : XY.__class_
 
