@@ -4,6 +4,7 @@ from sqlalchemy.engine.url import URL
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy_utils import database_exists, create_database
+from .mapper import ItemsModelMapper
 import os
 
 DeclarativeBase = declarative_base()
@@ -21,7 +22,7 @@ class Singleton(object):
         pass
 
 class DatabasePipeline(Singleton):
-    def __init__(self, settings, database=None, database_dev=None):
+    def __init__(self, settings, items=None, model=None, database=None, database_dev=None):
         if database:
             self.database = database
         else:
@@ -31,6 +32,11 @@ class DatabasePipeline(Singleton):
         else:
             self.database_dev = settings.get("DATABASE_DEV")
         self.session = self.get_session()
+        if items and models:
+            self.mapper = self.create_mapper(items, model)
+
+    def create_mapper(self, items, model):
+        return ItemsModelMapper(items=items, model=model)
 
     @classmethod
     def from_crawler(cls, crawler):
@@ -62,3 +68,16 @@ class DatabasePipeline(Singleton):
 
     def spider_closed(self, spider):
         self.session.close()
+
+    def process_item(self, item, spider):
+        obj = self.mapper.map_to_model(item = item, sess = self.session)
+        try:
+            self.session.add(obj)
+            self.session.commit()
+        except:
+            self.session.rollback()
+            raise
+        finally:
+            self.session.close()
+        return item
+
