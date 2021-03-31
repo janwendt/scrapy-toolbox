@@ -21,9 +21,15 @@ class Singleton(object):
         pass
 
 class DatabasePipeline(Singleton):
-    def __init__(self, settings):
-        self.database = settings.get("DATABASE")
-        self.database_dev = settings.get("DATABASE_DEV")
+    def __init__(self, settings, database=None, database_dev=None):
+        if database:
+            self.database = database
+        else:
+            self.database = settings.get("DATABASE")
+        if database_dev:
+            self.database_dev = database_dev
+        else:
+            self.database_dev = settings.get("DATABASE_DEV")
         self.session = self.get_session()
 
     @classmethod
