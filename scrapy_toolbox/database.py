@@ -32,7 +32,7 @@ class DatabasePipeline(Singleton):
         else:
             self.database_dev = settings.get("DATABASE_DEV")
         self.session = self.get_session()
-        if items and models:
+        if items and model:
             self.mapper = self.create_mapper(items, model)
 
     def create_mapper(self, items, model):
