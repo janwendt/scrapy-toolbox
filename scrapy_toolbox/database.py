@@ -25,11 +25,11 @@ class DatabasePipeline(Singleton):
     def __init__(self, settings, items=None, model=None, database=None, database_dev=None):
         if database:
             self.database = database
-        else:
+        elif settings:
             self.database = settings.get("DATABASE")
         if database_dev:
             self.database_dev = database_dev
-        else:
+        elif settings:
             self.database_dev = settings.get("DATABASE_DEV")
         self.session = self.get_session()
         if items and model:
