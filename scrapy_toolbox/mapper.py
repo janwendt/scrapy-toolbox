@@ -1,7 +1,5 @@
-from inspect import getmembers, isclass
-# Get all classes from a *.py-script
-from sqlalchemy.inspection import inspect
-# Get PKs from model-class
+from inspect import getmembers, isclass # Get all classes from a *.py-script
+from sqlalchemy.inspection import inspect # Get PKs from model-class
 
 class ItemsModelMapper:
     # For each Item there has to be a corrisponding databaseobject that extends scrapy_toolbox.database.DeclarativeBase
@@ -15,14 +13,12 @@ class ItemsModelMapper:
                           getmembers(self.model) if isclass(cls_obj)}  # "XYItem" : XY.__class_
 
     def map_to_model(self, item, sess):
-        item_class = item.__class__
-        item_fields = list(item.keys())
-        model_class = self.model_col[item_class.__name__]
-        ids = [key.name for key in inspect(model_class).primary_key]
-        if not set(ids).issubset(set(item_fields)):
+        model_class = self.model_col[item.__class__.__name__] # get model for item name
+        primary_keys = [key.name for key in inspect(model_class).primary_key]
+        if not set(primary_keys).issubset(set(list(item.keys()))):
             item = model_class(**{i:item[i] for i in item})
             return item
-        filter_param = {item_id:item[item_id] for item_id in ids}
+        filter_param = {item_id:item[item_id] for item_id in primary_keys}
         item_by_id = sess.query(model_class).filter_by(**filter_param).first()
         if item_by_id is None:
             item = model_class(**{i:item[i] for i in item})

@@ -36,6 +36,10 @@ Installation
   pip install --upgrade scrapy-toolbox
   ```
 
+Example Project
+------------
+You can find an example project [here](example/).
+
 Setup
 -----
 
@@ -140,5 +144,8 @@ Build Realease
 ------------------
 ```
 python setup.py sdist bdist_wheel
+cd dist
+pip install --upgrade --no-deps --force-reinstall scrapy_toolbox-0.3.3-py3-none-any.whl
+cd ..
 twine upload dist/*
 ```

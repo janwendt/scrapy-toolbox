@@ -4,6 +4,7 @@ from sqlalchemy.engine.url import URL
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy_utils import database_exists, create_database
+from sqlalchemy.orm import object_mapper
 from .mapper import ItemsModelMapper
 import os
 
@@ -33,10 +34,7 @@ class DatabasePipeline(Singleton):
             self.database_dev = settings.get("DATABASE_DEV")
         self.session = self.get_session()
         if items and model:
-            self.mapper = self.create_mapper(items, model)
-
-    def create_mapper(self, items, model):
-        return ItemsModelMapper(items=items, model=model)
+            self.mapper = ItemsModelMapper(items=items, model=model)
 
     @classmethod
     def from_crawler(cls, crawler):
@@ -70,10 +68,15 @@ class DatabasePipeline(Singleton):
         self.session.close()
 
     def process_item(self, item, spider):
-        obj = self.mapper.map_to_model(item = item, sess = self.session)
+        obj = self.mapper.map_to_model(item=item, sess=self.session)
         try:
             self.session.add(obj)
             self.session.commit()
+            
+            # Set potentially missing primary keys (autoincrement) for the item
+            mapper = object_mapper(obj)
+            for key, value in zip(mapper.primary_key, mapper.primary_key_from_instance(obj)):
+                item[key.name] = value
         except:
             self.session.rollback()
             raise
