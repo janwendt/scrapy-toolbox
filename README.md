@@ -43,6 +43,7 @@ Installation
 Setup
 -----
 You can find an example project [here](example/).
+
 Add the scrapy_toolbox Middlewares to your Scrapy Project `settings.py` and set your DATABASE_DEV and DATABASE.
 
   ```
