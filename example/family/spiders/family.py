@@ -1,6 +1,6 @@
+from scrapy_toolbox.error_handling import ErrorCatcher
 import scrapy
 from scrapy.loader import ItemLoader
-from scrapy_toolbox.error_handling import ErrorCatcher
 from family.items import MotherItem, ChildItem
 import family.models as models
 
