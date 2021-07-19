@@ -137,7 +137,7 @@ This package works with Python 3. It has been tested with Scrapy up to version 1
 
 Tasklist
 ------------------
-- [] Error Processing
+- [] Error Processing for scrapy-splash
 - [] Scaffold for instance ItemPipeline
 
 Build Realease
