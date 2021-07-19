@@ -23,6 +23,10 @@ A Python library that extends Scrapy with the following features:
 - Mail Notification when an Exception occurs (HTTP Errors (404, 502, ...) are excluded and only stored in the Database)
 - Automatic GitHub Issue creation when an Exception occurs (HTTP Errors (404, 502, ...) are excluded and only stored in the Database)
 
+Example Project
+------------
+You can find an example project [here](example/).
+
 Requisites: 
 -----------
 
@@ -36,12 +40,9 @@ Installation
   pip install --upgrade scrapy-toolbox
   ```
 
-Example Project
-------------
-You can find an example project [here](example/).
-
 Setup
 -----
+You can find an example project [here](example/).
 
 Add the scrapy_toolbox Middlewares to your Scrapy Project `settings.py` and set your DATABASE_DEV and DATABASE.
 
