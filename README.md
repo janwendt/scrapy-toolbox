@@ -136,6 +136,10 @@ Supported versions
 ------------------
 This package works with Python 3. It has been tested with Scrapy up to version 1.4.0.
 
+Notes
+------------------
+- Charset is automatically set to utf8mb4
+
 Tasklist
 ------------------
 - [] Error Processing for scrapy-splash
