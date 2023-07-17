@@ -52,9 +52,9 @@ class DatabasePipeline(Singleton):
 
     def create_engine(self):
         if "PRODUCTION" in os.environ:
-            engine = create_engine(URL(**self.database))
+            engine = create_engine(URL.create(**self.database))
         else:
-            engine = create_engine(URL(**self.database_dev))
+            engine = create_engine(URL.create(**self.database_dev))
         if not database_exists(engine.url):
             create_database(engine.url)
         return engine
