@@ -28,12 +28,12 @@ class DatabasePipeline(Singleton):
             self.database = database
         elif settings:
             self.database = settings.get("DATABASE")
-            self.database["query"]["charset"] = 'utf8mb4'
+            # self.database["query"]["charset"] = 'utf8mb4'
         if database_dev:
             self.database_dev = database_dev
         elif settings:
             self.database_dev = settings.get("DATABASE_DEV")
-            self.database_dev["query"]["charset"] = 'utf8mb4'
+            # self.database_dev["query"]["charset"] = 'utf8mb4'
         self.session = self.get_session()
         if items and model:
             self.mapper = ItemsModelMapper(items=items, model=model)
