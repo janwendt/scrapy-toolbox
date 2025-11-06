@@ -4,7 +4,7 @@ from scrapy import Request
 import json
 
 class ErrorProcessingMiddleware:
-    def process_start_requests(self, start_requests, spider):
+    def process_start(self, start_requests, spider):
         print("process_start_requests")
         if hasattr(spider, 'process_errors'):
             session = spider.crawler.database_session
